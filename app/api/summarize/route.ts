@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { summarizeUrl } from "@/lib/claude";
+import { searchBuzzTweets } from "@/lib/twitter";
 
 export async function POST(request: Request) {
   try {
-    const { url } = await request.json();
+    const { url, projectId, keywords, useBuzz = true } = await request.json();
     if (!url) {
       return NextResponse.json({ error: "url is required" }, { status: 400 });
     }
@@ -22,8 +23,9 @@ export async function POST(request: Request) {
       .replace(/\s+/g, " ")
       .trim();
 
-    const tweet = await summarizeUrl(url, pageText);
-    return NextResponse.json({ tweet });
+    const buzzTweets = useBuzz ? await searchBuzzTweets(url.split("/").pop() || "") : [];
+    const tweet = await summarizeUrl(url, pageText, projectId, keywords, buzzTweets);
+    return NextResponse.json({ tweet, buzzTweets });
   } catch (error) {
     console.error("Summarize error:", error);
     return NextResponse.json({ error: "Failed to summarize" }, { status: 500 });

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { optimizeTweet } from "@/lib/claude";
+import { generateFromDocument } from "@/lib/claude";
 import { searchBuzzTweets } from "@/lib/twitter";
 
 export async function POST(request: Request) {
@@ -8,11 +8,11 @@ export async function POST(request: Request) {
     if (!text) {
       return NextResponse.json({ error: "text is required" }, { status: 400 });
     }
-    const buzzTweets = useBuzz ? await searchBuzzTweets(text) : [];
-    const suggestions = await optimizeTweet(text, projectId, keywords, buzzTweets);
+    const buzzTweets = useBuzz ? await searchBuzzTweets(text.slice(0, 50)) : [];
+    const suggestions = await generateFromDocument(text, projectId, keywords, buzzTweets);
     return NextResponse.json({ suggestions, buzzTweets });
   } catch (error) {
-    console.error("Optimize error:", error);
-    return NextResponse.json({ error: "Failed to optimize" }, { status: 500 });
+    console.error("Document generation error:", error);
+    return NextResponse.json({ error: "Failed to generate from document" }, { status: 500 });
   }
 }
