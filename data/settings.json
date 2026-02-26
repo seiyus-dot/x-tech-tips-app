@@ -1,5 +1,5 @@
 {
   "schedule_slots": ["09:00", "15:00", "20:00", "23:00"],
-  "auto_generate_when_empty": true,
+  "auto_generate_when_empty": false,
   "projects_enabled": true
 }
